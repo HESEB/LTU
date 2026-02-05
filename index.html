@@ -1,0 +1,1091 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  
+  <link rel="icon" href="./favicon.ico" />
+<meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Luck to you (럭뜌) – 회차 연동 번호 생성기</title>
+  <style>
+    :root{
+      --bg1:#F185AE; --bg2:#F8B871; --bg3:#A573ED; --bg4:#6BB2FF;
+      --ink:#0b1020; --muted:#56607a;
+      --card: rgba(255,255,255,.86);
+      --stroke: rgba(12,18,35,.10);
+      --shadow: 0 20px 60px rgba(15,18,40,.18);
+      --r: 22px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", "Apple SD Gothic Neo", Arial, sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(255,255,255,.55), transparent 60%),
+        radial-gradient(900px 520px at 80% 20%, rgba(255,255,255,.45), transparent 55%),
+        linear-gradient(135deg, var(--bg1), var(--bg2), var(--bg3), var(--bg4));
+      min-height:100vh;
+      padding:18px;
+    }
+    .wrap{max-width:980px;margin:0 auto}
+    .top{
+      display:flex;gap:14px;align-items:center;justify-content:space-between;
+      padding:16px 18px;border-radius:var(--r);
+      background:rgba(255,255,255,.22);
+      border:1px solid rgba(255,255,255,.25);
+      box-shadow: 0 10px 40px rgba(15,18,40,.10);
+      backdrop-filter: blur(10px);
+    }
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{
+      width:42px;height:42px;border-radius:14px;
+      background: linear-gradient(135deg, rgba(255,255,255,.95), rgba(255,255,255,.55));
+      border:1px solid rgba(255,255,255,.65);
+      display:grid;place-items:center;
+      box-shadow: 0 10px 20px rgba(15,18,40,.12);
+      position:relative;overflow:hidden;
+    }
+    .logo:before{
+      content:"";
+      position:absolute;inset:-40% -40%;
+      background: conic-gradient(from 120deg, var(--bg1), var(--bg2), var(--bg3), var(--bg4), var(--bg1));
+      opacity:.35;
+      filter: blur(12px);
+      transform: rotate(15deg);
+    }
+    .logo span{position:relative;font-weight:900}
+    .title h1{margin:0;font-size:18px;line-height:1.1}
+    .title p{margin:2px 0 0;color:rgba(10,16,32,.72);font-size:12px}
+    .chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .chip{
+      padding:6px 10px;border-radius:999px;
+      background:rgba(255,255,255,.55);
+      border:1px solid rgba(255,255,255,.65);
+      font-size:12px;color:rgba(10,16,32,.78);
+    }
+
+    .grid{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:14px;
+    }
+    @media (max-width: 900px){
+      .grid{grid-template-columns:1fr}
+      .chips{justify-content:flex-start}
+      .top{flex-direction:column;align-items:flex-start}
+    }
+    .card{
+      border-radius:var(--r);
+      background: var(--card);
+      border:1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card .hd{
+      padding:14px 16px;
+      border-bottom:1px solid rgba(12,18,35,.08);
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      background: linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,.68));
+    }
+    .card .hd .left{display:flex;flex-direction:column;gap:2px}
+    .card .hd .left .k{font-weight:800}
+    .card .hd .left .s{font-size:12px;color:rgba(10,16,32,.65)}
+    .card .bd{padding:14px 16px}
+    .btns{display:flex;gap:10px;flex-wrap:wrap}
+    button{
+      appearance:none;border:none;cursor:pointer;
+      padding:12px 14px;border-radius:16px;
+      background: rgba(255,255,255,.92);
+      border:1px solid rgba(12,18,35,.12);
+      box-shadow: 0 10px 20px rgba(15,18,40,.10);
+      font-weight:800;color:rgba(10,16,32,.86);
+      transition: transform .08s ease, box-shadow .08s ease;
+      user-select:none;
+    }
+    button:hover{transform: translateY(-1px)}
+    button:active{transform: translateY(0)}
+    button:disabled{opacity:.55;cursor:not-allowed}
+    .primary{
+      background: linear-gradient(135deg, rgba(255,74,126,.92), rgba(91,157,255,.92));
+      color:white;
+      border:1px solid rgba(255,255,255,.35);
+    }
+    .ghost{background: rgba(255,255,255,.70)}
+    .danger{
+      background: rgba(255,255,255,.92);
+      border:1px solid rgba(255,74,126,.35);
+      color:#b3113f;
+    }
+
+    .numbers{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:10px 0 6px}
+    .ball{
+      width:46px;height:46px;border-radius:999px;
+      display:grid;place-items:center;
+      font-weight:900;
+      background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,255,255,.70));
+      border:1px solid rgba(12,18,35,.12);
+      box-shadow: 0 12px 22px rgba(15,18,40,.14);
+      position:relative;overflow:hidden;
+    }
+    .ball:before{
+      content:"";
+      position:absolute;inset:-40% -40%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), transparent 55%),
+                  conic-gradient(from 90deg, rgba(241,133,174,.55), rgba(248,184,113,.55), rgba(165,115,237,.55), rgba(107,178,255,.55));
+      opacity:.55; filter: blur(10px);
+    }
+    .ball span{position:relative}
+    .hint{font-size:12px;color:rgba(10,16,32,.70);line-height:1.5}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+    .mini{font-size:12px;color:rgba(10,16,32,.72)}
+    .sep{height:1px;background:rgba(12,18,35,.08);margin:12px 0}
+
+    .list{display:flex;flex-direction:column;gap:10px}
+    .item{
+      padding:12px 12px;border-radius:18px;
+      background: rgba(255,255,255,.72);
+      border:1px solid rgba(12,18,35,.10);
+    }
+    .item .topline{display:flex;justify-content:space-between;gap:10px;align-items:center}
+    .item .meta{font-size:12px;color:rgba(10,16,32,.65)}
+    .item .balls{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+    .ball.sm{width:36px;height:36px;font-size:14px}
+    .tag{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:6px 10px;border-radius:999px;
+      background: rgba(255,255,255,.60);
+      border:1px solid rgba(12,18,35,.10);
+      font-size:12px;color:rgba(10,16,32,.74)
+    }
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;}
+
+    /* modal */
+    .modal{
+      position:fixed;inset:0;display:none;
+      background: rgba(10,16,32,.38);
+      backdrop-filter: blur(6px);
+      padding:18px;
+      z-index:50;
+    }
+    .modal.on{display:grid;place-items:center}
+    .sheet{
+      width:min(820px, 100%);
+      border-radius: 26px;
+      background: rgba(255,255,255,.92);
+      border:1px solid rgba(255,255,255,.55);
+      box-shadow: 0 30px 90px rgba(15,18,40,.35);
+      overflow:hidden;
+    }
+    .sheet .hd{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(12,18,35,.10)}
+    .sheet .hd b{font-size:14px}
+    .sheet .bd{padding:14px 16px}
+    .opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width:720px){ .opts{grid-template-columns:1fr} }
+    .opt{
+      padding:12px 12px;border-radius:18px;
+      background: rgba(255,255,255,.80);
+      border:1px solid rgba(12,18,35,.10);
+    }
+    .opt label{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+    .opt input{transform: translateY(2px)}
+    .opt .t{font-weight:800}
+    .opt .d{font-size:12px;color:rgba(10,16,32,.68);margin-top:4px;line-height:1.45}
+    .footerNote{
+      margin-top:10px;
+      font-size:12px;color:rgba(10,16,32,.62);
+      line-height:1.5;
+      padding:10px 12px;border-radius:16px;
+      background: rgba(255,255,255,.72);
+      border:1px solid rgba(12,18,35,.08);
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"><span>LU</span></div>
+      <div class="title">
+        <h1>Luck to you <span style="opacity:.7">(럭뜌)</span></h1>
+        <p>회차(seed) 연동 · 새 회차/갱신 때만 결과가 바뀌는 모드</p>
+      </div>
+    </div>
+    <div class="chips">
+      <div class="chip" id="chipDraws">회차 데이터: 0</div>
+      <div class="chip" id="chipLast">최신 회차: -</div>
+      <div class="chip" id="chipSeed">seed: -</div>
+      <div class="chip" id="chipUpdated">updated: -</div>
+      <div class="chip" id="chipSaved">저장: 0</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="hd">
+        <div class="left">
+          <div class="k">번호 생성</div>
+          <div class="s">현재 최신 회차(seed) 기준으로 “항상 동일 결과” (설정이 같으면)</div>
+        </div>
+        <div class="tag" id="statusTag">대기 중</div>
+      </div>
+      <div class="bd">
+        <div class="btns">
+          <button class="ghost" id="btnRefresh">① 갱신(역대 회차 업데이트)</button>
+          <button class="primary" id="btnGenerate">② 생성(신규)</button>
+          <button class="ghost" id="btnSettings">③ 설정</button>
+          <button class="ghost" id="btnMy">④ 내가 선택한 번호</button>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="row">
+          <div>
+            <div style="font-weight:900">이번 럭뜌 추천</div>
+            <div class="mini" id="genMeta">—</div>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end">
+            <button id="btnSave" disabled>저장하기</button>
+            <button class="danger" id="btnClearTemp" title="현재 생성 결과만 초기화">초기화</button>
+          </div>
+        </div>
+
+        <div class="numbers" id="genBalls" aria-label="생성 번호"></div>
+        <div class="hint" id="genHint">
+          “3번 모드”: 같은 최신 회차(seed)에서 생성 버튼을 여러 번 눌러도 결과는 동일합니다. 새 회차가 반영되면 결과가 바뀝니다.
+        </div>
+
+        <div class="footerNote">
+          ⚠️ 엔터테인먼트용입니다. 과거 데이터 기반 가중치/패턴 연출일 뿐, 당첨을 보장하지 않습니다.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="hd">
+        <div class="left">
+          <div class="k">저장된 럭뜌</div>
+          <div class="s">내가 저장한 결과 호출</div>
+        </div>
+        <button class="ghost" id="btnWipe">전체삭제</button>
+      </div>
+      <div class="bd">
+        <div class="list" id="savedList"></div>
+        <div class="hint" id="savedHint">아직 저장된 번호가 없습니다. 생성 후 “저장하기”를 눌러보세요.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal" id="modal">
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="hd">
+      <b>럭뜌 설정</b>
+      <button class="ghost" id="btnClose">닫기</button>
+    </div>
+    <div class="bd">
+      <div class="opts">
+        <div class="opt">
+          <label>
+            <input type="checkbox" id="optIncludeHot" />
+            <div>
+              <div class="t">최다빈도(Hot) 숫자 포함</div>
+              <div class="d">최근 12주 + 최근 1년 빈도를 섞어 “핫” 숫자를 1~2개 강제 포함합니다.</div>
+            </div>
+          </label>
+        </div>
+        <div class="opt">
+          <label>
+            <input type="checkbox" id="optIncludeCold" />
+            <div>
+              <div class="t">장기 미등장(Cold) 숫자 포함</div>
+              <div class="d">최근에 안 나온 숫자(오버듀)를 1개 이상 포함하도록 유도합니다.</div>
+            </div>
+          </label>
+        </div>
+        <div class="opt">
+          <label>
+            <input type="checkbox" id="optAntiConsecutive" />
+            <div>
+              <div class="t">연속수 회피(음모론 모드)</div>
+              <div class="d">연속 숫자(예: 12-13)가 동시에 나오면 “덜 그럴듯”하다고 보고 패널티를 줍니다.</div>
+            </div>
+          </label>
+        </div>
+        <div class="opt">
+          <label>
+            <input type="checkbox" id="optSeasonality" />
+            <div>
+              <div class="t">계절성/월 주기 공명</div>
+              <div class="d">이번 달(월)과 같은 달에 자주 나왔던 숫자에 가중치를 살짝 더합니다.</div>
+            </div>
+          </label>
+        </div>
+        <div class="opt">
+          <label>
+            <input type="checkbox" id="optGapResonance" />
+            <div>
+              <div class="t">갭(차이) 공명</div>
+              <div class="d">과거 당첨 조합에서 자주 나타난 “숫자 간 간격 분포”를 닮게 뽑습니다.</div>
+            </div>
+          </label>
+        </div>
+        <div class="opt">
+          <label>
+            <input type="checkbox" id="optNoRepeatLastDraw" />
+            <div>
+              <div class="t">직전 회차와 중복 최소화</div>
+              <div class="d">직전 회차 번호가 그대로 또 나오는 건 “덜 그럴듯”하다고 보고 가중치를 낮춥니다.</div>
+            </div>
+          </label>
+        </div>
+
+        <div class="opt">
+          <div class="t">생성 세트 수</div>
+          <div class="d">한 번 생성할 때 몇 게임(세트)을 만들지 선택합니다.</div>
+          <div style="margin-top:10px; display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+            <select id="optBatch" style="padding:10px 12px;border-radius:14px;border:1px solid rgba(12,18,35,.14);background:white;font-weight:800">
+              <option value="1">1세트</option>
+              <option value="2">2세트</option>
+              <option value="3">3세트</option>
+              <option value="5">5세트</option>
+            </select>
+            <span class="mini">같은 회차(seed)라도 세트가 여러 개면 “세트별로” 안정적으로 다르게 나옵니다.</span>
+          </div>
+        </div>
+
+        <div class="opt">
+          <div class="t">가중치 강도</div>
+          <div class="d">패턴 연출을 얼마나 강하게 걸지 선택합니다.</div>
+          <div style="margin-top:10px">
+            <input id="optIntensity" type="range" min="0" max="100" value="60" style="width:100%" />
+            <div class="mini">현재: <span id="optIntensityLabel">60</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footerNote" style="margin-top:14px">
+        데이터는 <b>LocalStorage</b>에 저장됩니다.  
+        “갱신”은 <span class="mono">/data/lotto_draws.json</span>을 읽습니다(권장, GitHub Actions 자동 업데이트).
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- My Picks Modal -->
+<div class="modal" id="modalMy">
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="hd">
+      <b>내가 선택한 번호</b>
+      <button class="ghost" id="btnCloseMy">닫기</button>
+    </div>
+    <div class="bd">
+      <div class="hint" style="margin-bottom:10px">저장한 럭뜌 결과를 시간순으로 확인합니다.</div>
+      <div class="list" id="myList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ---------------------------
+  // Storage keys
+  // ---------------------------
+  const K = {
+    DRAWS: "lucktoyou_draws_v2",
+    SAVED: "lucktoyou_saved_v2",
+    SETTINGS: "lucktoyou_settings_v2",
+    TEMP: "lucktoyou_temp_v2"
+  };
+
+  // ---------------------------
+  // Default settings
+  // ---------------------------
+  const defaultSettings = {
+    includeHot: true,
+    includeCold: true,
+    antiConsecutive: true,
+    seasonality: true,
+    gapResonance: true,
+    noRepeatLastDraw: true,
+    batch: 1,
+    intensity: 60
+  };
+
+  // ---------------------------
+  // DOM
+  // ---------------------------
+  const $ = (sel) => document.querySelector(sel);
+  const chipDraws = $("#chipDraws");
+  const chipLast = $("#chipLast");
+  const chipSeed = $("#chipSeed");
+  const chipUpdated = $("#chipUpdated");
+  const chipSaved = $("#chipSaved");
+  const statusTag = $("#statusTag");
+
+  const btnRefresh = $("#btnRefresh");
+  const btnGenerate = $("#btnGenerate");
+  const btnSettings = $("#btnSettings");
+  const btnMy = $("#btnMy");
+  const btnSave = $("#btnSave");
+  const btnClearTemp = $("#btnClearTemp");
+  const btnWipe = $("#btnWipe");
+
+  const genBalls = $("#genBalls");
+  const genMeta = $("#genMeta");
+  const genHint = $("#genHint");
+
+  const savedList = $("#savedList");
+  const savedHint = $("#savedHint");
+
+  const modal = $("#modal");
+  const btnClose = $("#btnClose");
+
+  const modalMy = $("#modalMy");
+  const btnCloseMy = $("#btnCloseMy");
+  const myList = $("#myList");
+
+  // Settings inputs
+  const optIncludeHot = $("#optIncludeHot");
+  const optIncludeCold = $("#optIncludeCold");
+  const optAntiConsecutive = $("#optAntiConsecutive");
+  const optSeasonality = $("#optSeasonality");
+  const optGapResonance = $("#optGapResonance");
+  const optNoRepeatLastDraw = $("#optNoRepeatLastDraw");
+  const optBatch = $("#optBatch");
+  const optIntensity = $("#optIntensity");
+  const optIntensityLabel = $("#optIntensityLabel");
+
+  // ---------------------------
+  // Helpers
+  // ---------------------------
+  const nowISO = () => new Date().toISOString();
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+  function loadJSON(key, fallback) {
+    try {
+      const v = localStorage.getItem(key);
+      if (!v) return fallback;
+      return JSON.parse(v);
+    } catch {
+      return fallback;
+    }
+  }
+  function saveJSON(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+  function setStatus(text) {
+    statusTag.textContent = text;
+  }
+
+  // ---------------------------
+  // Deterministic RNG (Mulberry32)
+  // ---------------------------
+  function mulberry32(seed) {
+    let a = seed >>> 0;
+    return function() {
+      a |= 0;
+      a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function hash32(str) {
+    // FNV-1a 32-bit
+    let h = 0x811C9DC5;
+    for (let i=0;i<str.length;i++){
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 0x01000193);
+    }
+    return h >>> 0;
+  }
+
+  // ---------------------------
+  // Draw data format
+  // ---------------------------
+  function normalizeDraws(raw) {
+    if (!raw) return [];
+    if (Array.isArray(raw)) {
+      return raw
+        .map(x => ({
+          drwNo: Number(x.drwNo),
+          date: (x.date || "").slice(0,10),
+          nums: Array.isArray(x.nums) ? x.nums.map(Number) : [],
+          bonus: Number(x.bonus ?? 0)
+        }))
+        .filter(x => Number.isFinite(x.drwNo) && x.nums.length === 6)
+        .sort((a,b) => a.drwNo - b.drwNo);
+    }
+    if (raw.draws && Array.isArray(raw.draws)) return normalizeDraws(raw.draws);
+    return [];
+  }
+
+  // ---------------------------
+  // Conspiracy-ish scoring model (entertainment)
+  // ---------------------------
+  function buildStats(draws) {
+    const N = 45;
+    const freqAll = Array(N+1).fill(0);
+    const freqYear = Array(N+1).fill(0);
+    const freq12w = Array(N+1).fill(0);
+    const lastSeen = Array(N+1).fill(null);
+
+    const byMonth = Array.from({length:12}, () => Array(N+1).fill(0));
+    const gapHist = new Map();
+
+    if (!draws.length) {
+      return { freqAll, freqYear, freq12w, lastSeen, byMonth, gapHist, lastDraw:null };
+    }
+
+    const lastDraw = draws[draws.length - 1];
+    const lastDate = new Date(lastDraw.date + "T00:00:00");
+    const oneYearAgo = new Date(lastDate);
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+    const twelveWeeksAgo = new Date(lastDate);
+    twelveWeeksAgo.setDate(twelveWeeksAgo.getDate() - 7*12);
+
+    for (const d of draws) {
+      const dt = new Date(d.date + "T00:00:00");
+      const m = clamp(dt.getMonth(), 0, 11);
+      const nums = d.nums.slice().sort((a,b)=>a-b);
+
+      for (const n of nums) {
+        freqAll[n] += 1;
+        byMonth[m][n] += 1;
+        lastSeen[n] = d.drwNo;
+        if (dt >= oneYearAgo) freqYear[n] += 1;
+        if (dt >= twelveWeeksAgo) freq12w[n] += 1;
+      }
+
+      for (let i=0;i<nums.length-1;i++){
+        const g = nums[i+1] - nums[i];
+        gapHist.set(g, (gapHist.get(g) || 0) + 1);
+      }
+    }
+
+    return { freqAll, freqYear, freq12w, lastSeen, byMonth, gapHist, lastDraw };
+  }
+
+  function weightedPick(weights, excludeSet, rnd) {
+    let total = 0;
+    for (let i=1;i<=45;i++){
+      if (excludeSet.has(i)) continue;
+      const w = Math.max(0, weights[i]);
+      total += w;
+    }
+    if (total <= 0) {
+      const candidates = [];
+      for (let i=1;i<=45;i++) if (!excludeSet.has(i)) candidates.push(i);
+      return candidates[Math.floor(rnd()*candidates.length)];
+    }
+    let r = rnd() * total;
+    for (let i=1;i<=45;i++){
+      if (excludeSet.has(i)) continue;
+      r -= Math.max(0, weights[i]);
+      if (r <= 0) return i;
+    }
+    for (let i=1;i<=45;i++) if (!excludeSet.has(i)) return i;
+    return 1;
+  }
+
+  function scoreWeights(draws, settings) {
+    const intensity = settings.intensity / 100;
+    const st = buildStats(draws);
+    const W = Array(46).fill(1);
+
+    const maxAll = Math.max(...st.freqAll.slice(1), 1);
+    const maxYear = Math.max(...st.freqYear.slice(1), 1);
+    const max12w = Math.max(...st.freq12w.slice(1), 1);
+
+    const currMonth = new Date().getMonth();
+    const maxMonth = Math.max(...st.byMonth[currMonth].slice(1), 1);
+
+    const lastNo = st.lastDraw?.drwNo ?? 0;
+
+    for (let n=1;n<=45;n++){
+      const a = st.freqAll[n] / maxAll;
+      const y = st.freqYear[n] / maxYear;
+      const w12 = st.freq12w[n] / max12w;
+
+      let hot = (0.25*a + 0.35*y + 0.40*w12);
+
+      const ls = st.lastSeen[n];
+      const overdue = (ls == null || lastNo === 0) ? 0.5 : clamp((lastNo - ls) / 60, 0, 1);
+
+      const season = st.byMonth[currMonth][n] / maxMonth;
+
+      let score = 1;
+      score *= (1 + intensity * 0.90 * hot);
+      score *= (1 + intensity * 0.55 * overdue);
+
+      if (settings.seasonality) score *= (1 + intensity * 0.25 * season);
+
+      if (settings.noRepeatLastDraw && st.lastDraw) {
+        if (st.lastDraw.nums.includes(n)) score *= (1 - intensity * 0.35);
+      }
+
+      W[n] = clamp(score, 0.05, 6.0);
+    }
+    return { W, stats: st };
+  }
+
+  function comboPenalty(nums, stats, settings) {
+    const intensity = settings.intensity / 100;
+    let m = 1;
+    const s = nums.slice().sort((a,b)=>a-b);
+
+    if (settings.antiConsecutive) {
+      let cons = 0;
+      for (let i=0;i<s.length-1;i++) if (s[i+1] === s[i]+1) cons++;
+      if (cons > 0) m *= (1 - intensity * 0.22 * cons);
+    }
+
+    if (settings.gapResonance && stats && stats.gapHist && stats.gapHist.size) {
+      let score = 0;
+      let denom = 0;
+      const maxGapCount = Math.max(...Array.from(stats.gapHist.values()), 1);
+      for (let i=0;i<s.length-1;i++){
+        const g = s[i+1]-s[i];
+        const c = (stats.gapHist.get(g) || 0) / maxGapCount;
+        score += c; denom += 1;
+      }
+      const avg = denom ? (score/denom) : 0.5;
+      m *= (1 + intensity * 0.18 * (avg - 0.5));
+    }
+
+    return clamp(m, 0.15, 1.35);
+  }
+
+  function generateOne(draws, settings, baseSeed, setIndex) {
+    const { W, stats } = scoreWeights(draws, settings);
+
+    // deterministic rng per set
+    const rnd = mulberry32((baseSeed + (setIndex * 2654435761)) >>> 0);
+
+    const picks = new Set();
+
+    if (draws.length) {
+      if (settings.includeHot) {
+        const hotScore = [];
+        for (let n=1;n<=45;n++){
+          const h = stats.freq12w[n]*1.2 + stats.freqYear[n]*0.8;
+          hotScore.push([n,h]);
+        }
+        hotScore.sort((a,b)=>b[1]-a[1]);
+        const top = hotScore.slice(0, 12).map(x=>x[0]);
+        const chosen = top[Math.floor(rnd()*top.length)];
+        picks.add(chosen);
+      }
+      if (settings.includeCold) {
+        const lastNo = stats.lastDraw?.drwNo ?? 0;
+        const coldScore = [];
+        for (let n=1;n<=45;n++){
+          const ls = stats.lastSeen[n];
+          const overdue = (ls == null || lastNo === 0) ? 999 : (lastNo - ls);
+          coldScore.push([n, overdue]);
+        }
+        coldScore.sort((a,b)=>b[1]-a[1]);
+        const top = coldScore.slice(0, 12).map(x=>x[0]).filter(n => !picks.has(n));
+        if (top.length) picks.add(top[Math.floor(rnd()*top.length)]);
+      }
+    }
+
+    while (picks.size < 6) {
+      picks.add(weightedPick(W, picks, rnd));
+    }
+
+    const intensity = settings.intensity / 100;
+    let best = Array.from(picks).sort((a,b)=>a-b);
+    let bestScore = comboPenalty(best, stats, settings);
+
+    const tries = Math.floor(8 + intensity * 18);
+    for (let t=0;t<tries;t++){
+      const cand = new Set();
+      if (draws.length) {
+        if (settings.includeHot) {
+          const hotScore = [];
+          for (let n=1;n<=45;n++){
+            const h = stats.freq12w[n]*1.2 + stats.freqYear[n]*0.8;
+            hotScore.push([n,h]);
+          }
+          hotScore.sort((a,b)=>b[1]-a[1]);
+          const top = hotScore.slice(0, 12).map(x=>x[0]);
+          cand.add(top[Math.floor(rnd()*top.length)]);
+        }
+        if (settings.includeCold) {
+          const lastNo = stats.lastDraw?.drwNo ?? 0;
+          const coldScore = [];
+          for (let n=1;n<=45;n++){
+            const ls = stats.lastSeen[n];
+            const overdue = (ls == null || lastNo === 0) ? 999 : (lastNo - ls);
+            coldScore.push([n, overdue]);
+          }
+          coldScore.sort((a,b)=>b[1]-a[1]);
+          const top = coldScore.slice(0, 12).map(x=>x[0]).filter(n => !cand.has(n));
+          if (top.length) cand.add(top[Math.floor(rnd()*top.length)]);
+        }
+      }
+      while (cand.size < 6) cand.add(weightedPick(W, cand, rnd));
+
+      const arr = Array.from(cand).sort((a,b)=>a-b);
+      const s = comboPenalty(arr, stats, settings);
+      if (s > bestScore) { best = arr; bestScore = s; }
+    }
+
+    const meta = [];
+    if (settings.includeHot) meta.push("Hot 포함");
+    if (settings.includeCold) meta.push("Cold 포함");
+    if (settings.antiConsecutive) meta.push("연속수 회피");
+    if (settings.seasonality) meta.push("계절성");
+    if (settings.gapResonance) meta.push("갭 공명");
+    if (settings.noRepeatLastDraw) meta.push("직전 중복↓");
+
+    return {
+      nums: best,
+      meta: meta.join(" · ") || "기본",
+      basis: {
+        lastDraw: stats.lastDraw ? { drwNo: stats.lastDraw.drwNo, date: stats.lastDraw.date } : null
+      }
+    };
+  }
+
+  // ---------------------------
+  // Render
+  // ---------------------------
+  function renderBalls(el, nums, small=false){
+    el.innerHTML = "";
+    for (const n of nums){
+      const d = document.createElement("div");
+      d.className = "ball" + (small ? " sm" : "");
+      d.innerHTML = "<span>"+n+"</span>";
+      el.appendChild(d);
+    }
+  }
+
+  function renderSaved(){
+    const saved = loadJSON(K.SAVED, []);
+    chipSaved.textContent = "저장: " + saved.length;
+
+    savedList.innerHTML = "";
+    myList.innerHTML = "";
+
+    if (!saved.length){
+      savedHint.style.display = "block";
+      return;
+    }
+    savedHint.style.display = "none";
+
+    const makeItem = (x, showActions=true) => {
+      const wrap = document.createElement("div");
+      wrap.className = "item";
+      const t = new Date(x.savedAt);
+      const stamp = isNaN(t.getTime()) ? x.savedAt : t.toLocaleString();
+
+      wrap.innerHTML = `
+        <div class="topline">
+          <div>
+            <div style="font-weight:900">럭뜌 ${x.label || ""}</div>
+            <div class="meta">${stamp} · seed ${x.seed} · ${x.meta || ""}</div>
+          </div>
+          ${showActions ? `<button class="ghost" data-del="${x.id}">삭제</button>` : ""}
+        </div>
+        <div class="balls" id="b_${x.id}"></div>
+      `;
+      const balls = wrap.querySelector("#b_"+x.id);
+      renderBalls(balls, x.nums, true);
+
+      if (showActions) {
+        const delBtn = wrap.querySelector("button[data-del]");
+        delBtn.addEventListener("click", () => {
+          const cur = loadJSON(K.SAVED, []);
+          const next = cur.filter(z => z.id !== x.id);
+          saveJSON(K.SAVED, next);
+          renderSaved();
+        });
+      }
+      return wrap;
+    };
+
+    const recent = saved.slice().sort((a,b)=> (b.savedAt||"").localeCompare(a.savedAt||"")).slice(0,10);
+    for (const x of recent) savedList.appendChild(makeItem(x, true));
+
+    const all = saved.slice().sort((a,b)=> (b.savedAt||"").localeCompare(a.savedAt||""));
+    for (const x of all) myList.appendChild(makeItem(x, false));
+  }
+
+  function renderChips(draws){
+    chipDraws.textContent = "회차 데이터: " + draws.length;
+    const last = draws.length ? draws[draws.length-1] : null;
+    chipLast.textContent = "최신 회차: " + (last ? `${last.drwNo} (${last.date})` : "-");
+  }
+
+  function showTemp(draws){
+    const temp = loadJSON(K.TEMP, null);
+    genBalls.innerHTML = "";
+    btnSave.disabled = true;
+
+    const last = draws.length ? draws[draws.length-1] : null;
+    const seedBase = last ? last.drwNo : 0;
+    chipSeed.textContent = "seed: " + (seedBase ? seedBase : "-");
+    if (!seedBase) chipUpdated.textContent = "updated: -";
+
+    if (!temp){
+      genMeta.textContent = "—";
+      genHint.textContent = "“3번 모드”: 같은 최신 회차(seed)에서 생성 버튼을 여러 번 눌러도 결과는 동일합니다. 새 회차가 반영되면 결과가 바뀝니다.";
+      return;
+    }
+    const { sets, createdAt, meta, basis, seed } = temp;
+    genMeta.textContent = `${new Date(createdAt).toLocaleString()} · seed ${seed} · ${meta}` + (basis?.lastDraw ? ` · 기준 최신 ${basis.lastDraw.drwNo}회(${basis.lastDraw.date})` : "");
+    genHint.textContent = sets.length > 1 ? `생성된 ${sets.length}세트: “세트별로” 안정적으로 다르게 나옵니다(같은 seed에서 고정).` : `저장하기를 누르면 “내가 선택한 번호”에 기록됩니다.`;
+
+    renderBalls(genBalls, sets[0].nums, false);
+
+    if (sets.length > 1){
+      const box = document.createElement("div");
+      box.style.marginTop = "12px";
+      box.innerHTML = `<div class="sep"></div><div style="font-weight:900;margin-bottom:10px">추가 세트</div>`;
+      sets.slice(1).forEach((s, idx) => {
+        const it = document.createElement("div");
+        it.className = "item";
+        it.style.cursor = "pointer";
+        it.innerHTML = `
+          <div class="topline">
+            <div>
+              <div style="font-weight:900">세트 ${idx+2}</div>
+              <div class="meta">${s.meta || ""}</div>
+            </div>
+            <span class="tag">선택</span>
+          </div>
+          <div class="balls" id="extra_${idx}"></div>
+        `;
+        renderBalls(it.querySelector("#extra_"+idx), s.nums, true);
+        it.addEventListener("click", () => {
+          const t = loadJSON(K.TEMP, null);
+          if (!t) return;
+          const sel = t.sets.splice(idx+1, 1)[0];
+          t.sets.unshift(sel);
+          saveJSON(K.TEMP, t);
+          showTemp(draws);
+        });
+        box.appendChild(it);
+      });
+      genBalls.appendChild(box);
+    }
+
+    btnSave.disabled = false;
+  }
+
+  // ---------------------------
+  // Settings modal
+  // ---------------------------
+  function loadSettings(){
+    const s = loadJSON(K.SETTINGS, defaultSettings);
+    return { ...defaultSettings, ...s };
+  }
+  function settingsKey(s){
+    // settings hash affects seed so that "same settings" => stable
+    return JSON.stringify({
+      includeHot: !!s.includeHot,
+      includeCold: !!s.includeCold,
+      antiConsecutive: !!s.antiConsecutive,
+      seasonality: !!s.seasonality,
+      gapResonance: !!s.gapResonance,
+      noRepeatLastDraw: !!s.noRepeatLastDraw,
+      batch: Number(s.batch||1),
+      intensity: Number(s.intensity??60)
+    });
+  }
+  function syncSettingsUI(){
+    const s = loadSettings();
+    optIncludeHot.checked = !!s.includeHot;
+    optIncludeCold.checked = !!s.includeCold;
+    optAntiConsecutive.checked = !!s.antiConsecutive;
+    optSeasonality.checked = !!s.seasonality;
+    optGapResonance.checked = !!s.gapResonance;
+    optNoRepeatLastDraw.checked = !!s.noRepeatLastDraw;
+    optBatch.value = String(s.batch || 1);
+    optIntensity.value = String(s.intensity ?? 60);
+    optIntensityLabel.textContent = String(s.intensity ?? 60);
+  }
+  function saveSettingsFromUI(){
+    const s = {
+      includeHot: optIncludeHot.checked,
+      includeCold: optIncludeCold.checked,
+      antiConsecutive: optAntiConsecutive.checked,
+      seasonality: optSeasonality.checked,
+      gapResonance: optGapResonance.checked,
+      noRepeatLastDraw: optNoRepeatLastDraw.checked,
+      batch: Number(optBatch.value || 1),
+      intensity: Number(optIntensity.value || 60)
+    };
+    saveJSON(K.SETTINGS, s);
+  }
+
+  // ---------------------------
+  // Data refresh
+  // ---------------------------
+  async function refreshDraws(){
+    setStatus("갱신 중…");
+    try {
+      const url = "./data/lotto_draws.json?v=" + Date.now();
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) throw new Error("draws.json fetch failed: " + res.status);
+      const raw = await res.json();
+      const draws = normalizeDraws(raw);
+      if (!draws.length) throw new Error("draws.json is empty");
+      // show update stamp (best-effort)
+      const lm = res.headers.get('last-modified');
+      const stamp = lm ? new Date(lm).toLocaleString() : new Date().toLocaleString();
+      chipUpdated.textContent = 'updated: ' + stamp;
+      saveJSON(K.DRAWS, draws);
+      renderChips(draws);
+      setStatus("갱신 완료");
+      return draws;
+    } catch (e) {
+      console.warn(e);
+      setStatus("갱신 실패");
+      const draws = loadJSON(K.DRAWS, []);
+      renderChips(draws);
+      return draws;
+    }
+  }
+
+  // ---------------------------
+  // Generate (Mode 3)
+  // - Stable within same latest draw
+  // - Changes only when latest draw changes (or settings change)
+  // ---------------------------
+  function doGenerate(draws){
+    const settings = loadSettings();
+    const batch = clamp(settings.batch || 1, 1, 10);
+
+    const last = draws.length ? draws[draws.length-1] : null;
+    const drawSeed = last ? (last.drwNo >>> 0) : 0;
+
+    // include settings hash so "same settings" => stable per draw
+    const sHash = hash32(settingsKey(settings));
+    const baseSeed = (drawSeed ^ sHash) >>> 0;
+
+    const sets = [];
+    for (let i=0;i<batch;i++){
+      const one = generateOne(draws, settings, baseSeed, i);
+      sets.push({ nums: one.nums, meta: one.meta, basis: one.basis });
+    }
+
+    const temp = {
+      createdAt: nowISO(),
+      meta: sets[0].meta,
+      basis: sets[0].basis,
+      seed: drawSeed,
+      sets
+    };
+    saveJSON(K.TEMP, temp);
+    showTemp(draws);
+    setStatus("생성 완료");
+  }
+
+  function saveTempToSaved(){
+    const temp = loadJSON(K.TEMP, null);
+    if (!temp || !temp.sets || !temp.sets.length) return;
+
+    const chosen = temp.sets[0];
+    const saved = loadJSON(K.SAVED, []);
+    const id = "p_" + Math.random().toString(16).slice(2) + "_" + Date.now();
+
+    saved.push({
+      id,
+      savedAt: nowISO(),
+      label: "",
+      nums: chosen.nums.slice().sort((a,b)=>a-b),
+      meta: chosen.meta || temp.meta || "",
+      seed: temp.seed || "-",
+      basis: chosen.basis || temp.basis || null
+    });
+
+    saveJSON(K.SAVED, saved);
+    renderSaved();
+    setStatus("저장됨");
+  }
+
+  // ---------------------------
+  // Wire events
+  // ---------------------------
+  btnRefresh.addEventListener("click", async () => {
+    const draws = await refreshDraws();
+    showTemp(draws);
+  });
+
+  btnGenerate.addEventListener("click", async () => {
+    // Always refresh before generate so seed tracks latest draw
+    const draws = await refreshDraws();
+    if (draws.length) doGenerate(draws);
+  });
+
+  btnSettings.addEventListener("click", () => {
+    syncSettingsUI();
+    modal.classList.add("on");
+  });
+  btnClose.addEventListener("click", () => {
+    saveSettingsFromUI();
+    modal.classList.remove("on");
+    // regenerate deterministically with new settings (same draw seed)
+    const draws = loadJSON(K.DRAWS, []);
+    if (draws.length) doGenerate(draws);
+  });
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      saveSettingsFromUI();
+      modal.classList.remove("on");
+      const draws = loadJSON(K.DRAWS, []);
+      if (draws.length) doGenerate(draws);
+    }
+  });
+
+  optIntensity.addEventListener("input", () => {
+    optIntensityLabel.textContent = optIntensity.value;
+  });
+
+  btnMy.addEventListener("click", () => {
+    renderSaved();
+    modalMy.classList.add("on");
+  });
+  btnCloseMy.addEventListener("click", () => modalMy.classList.remove("on"));
+  modalMy.addEventListener("click", (e) => {
+    if (e.target === modalMy) modalMy.classList.remove("on");
+  });
+
+  btnSave.addEventListener("click", saveTempToSaved);
+
+  btnClearTemp.addEventListener("click", () => {
+    localStorage.removeItem(K.TEMP);
+    const draws = loadJSON(K.DRAWS, []);
+    showTemp(draws);
+    setStatus("초기화됨");
+  });
+
+  btnWipe.addEventListener("click", () => {
+    if (!confirm("저장된 럭뜌 기록을 전부 삭제할까요?")) return;
+    localStorage.removeItem(K.SAVED);
+    renderSaved();
+    setStatus("전체삭제됨");
+  });
+
+  // initial boot
+  (async function init(){
+    setStatus("로딩…");
+    renderSaved();
+
+    // Always try refresh once to avoid GitHub Pages cache/stale LocalStorage.
+    let draws = await refreshDraws();
+    renderChips(draws);
+    showTemp(draws);
+
+    setStatus(draws.length ? "준비 완료" : "데이터 없음 (갱신 필요)");
+  })();
+})();
+</script>
+</body>
+</html>
