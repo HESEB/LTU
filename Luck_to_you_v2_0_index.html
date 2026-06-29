@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Luck to you v2.0</title>
+  <style>
+    :root{
+      --pink:#ff5f9e;--orange:#ffb35c;--purple:#8e6cff;--blue:#58bfff;--mint:#48d6b0;
+      --ink:#121827;--muted:#667085;--line:rgba(18,24,39,.10);
+      --card:rgba(255,255,255,.88);--soft:rgba(255,255,255,.62);
+      --shadow:0 22px 70px rgba(31,41,55,.18);--r:28px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;min-height:100vh;padding:14px;color:var(--ink);
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans KR",Arial,sans-serif;
+      background:
+        radial-gradient(900px 560px at 10% 5%,rgba(255,255,255,.78),transparent 62%),
+        radial-gradient(680px 460px at 90% 10%,rgba(255,255,255,.52),transparent 62%),
+        linear-gradient(135deg,#ff8fbd,#ffc16f,#9c7cff,#67c8ff);
+    }
+    button,input,select,textarea{font:inherit}
+    button{border:0;cursor:pointer}
+    .wrap{max-width:1160px;margin:0 auto}
+    .shell{border-radius:36px;padding:16px;background:rgba(255,255,255,.26);border:1px solid rgba(255,255,255,.42);box-shadow:0 16px 60px rgba(20,18,58,.16);backdrop-filter:blur(12px)}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .brand{display:flex;gap:13px;align-items:center}
+    .logo{width:56px;height:56px;border-radius:20px;display:grid;place-items:center;color:white;font-weight:1000;background:linear-gradient(135deg,var(--pink),var(--purple));box-shadow:0 16px 30px rgba(142,108,255,.32)}
+    h1{margin:0;font-size:23px;letter-spacing:-.4px}.sub{margin:4px 0 0;color:rgba(18,24,39,.68);font-size:13px;line-height:1.45}
+    .chips{display:flex;gap:8px;flex-wrap:wrap}.chip,.tag{padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.66);border:1px solid rgba(255,255,255,.65);font-size:12px;font-weight:900;color:rgba(18,24,39,.74)}
+    .grid{margin-top:14px;display:grid;grid-template-columns:1.05fr .95fr;gap:14px}
+    @media(max-width:920px){.grid{grid-template-columns:1fr}body{padding:10px}.shell{padding:12px}.top{align-items:flex-start}.ball{width:46px!important;height:46px!important}.big{font-size:18px!important}}
+    .card{border-radius:var(--r);background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden}
+    .hd{padding:15px 17px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,.64))}
+    .k{font-weight:1000}.s,.hint,.meta,.note{font-size:12px;color:rgba(18,24,39,.64);line-height:1.55}.bd{padding:16px 17px}
+    .main{text-align:center}
+    .heroEngine{display:flex;align-items:center;gap:14px;justify-content:center;flex-wrap:wrap;text-align:left}
+    .avatar{width:86px;height:86px;border-radius:30px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(255,255,255,.94),rgba(255,255,255,.58));border:1px solid rgba(255,255,255,.65);box-shadow:0 16px 30px rgba(31,41,55,.13);font-size:48px}
+    .engineName{font-size:24px;font-weight:1000;letter-spacing:-.5px}.stars{letter-spacing:1px;color:#f59e0b;font-size:13px}.lv{display:inline-flex;padding:6px 10px;border-radius:999px;background:rgba(142,108,255,.13);color:#5b3fd6;font-weight:1000;font-size:12px}
+    .big{width:100%;max-width:500px;min-height:70px;border-radius:26px;color:white;font-size:20px;font-weight:1000;background:linear-gradient(135deg,var(--pink),var(--orange) 45%,var(--purple));box-shadow:0 18px 38px rgba(255,95,158,.33);border:1px solid rgba(255,255,255,.45)}
+    .btns{margin:12px 0;display:flex;gap:9px;justify-content:center;flex-wrap:wrap}.pill{padding:11px 13px;border-radius:999px;background:rgba(255,255,255,.78);border:1px solid var(--line);font-weight:900;color:rgba(18,24,39,.82);box-shadow:0 8px 18px rgba(20,18,58,.08)}
+    .pill.primary{background:linear-gradient(135deg,var(--purple),var(--blue));color:white;border-color:rgba(255,255,255,.42)}
+    .pill.danger{color:#c0184a;border-color:rgba(192,24,74,.22)}.pill:disabled{opacity:.45;cursor:not-allowed}.pill:active,.big:active{transform:translateY(1px)}
+    .numbers{min-height:78px;padding:14px 0 8px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center}
+    .ball{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;position:relative;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,255,255,.72));border:1px solid var(--line);box-shadow:0 14px 25px rgba(20,18,58,.13);font-weight:1000;font-size:18px;animation:pop .18s ease both}
+    .ball:before{content:"";position:absolute;inset:-40%;background:conic-gradient(from 120deg,rgba(255,95,158,.58),rgba(255,179,92,.58),rgba(143,108,255,.58),rgba(91,188,255,.58));filter:blur(11px);opacity:.62}.ball span{position:relative}.ball.sm{width:38px!important;height:38px!important;font-size:14px}
+    @keyframes pop{from{transform:scale(.75);opacity:0}to{transform:scale(1);opacity:1}}
+    .note{margin-top:12px;padding:12px 13px;border-radius:18px;background:rgba(255,255,255,.70);border:1px solid var(--line)}
+    .engineList{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:10px}
+    .engineCard{padding:12px;border-radius:22px;background:rgba(255,255,255,.72);border:1px solid var(--line);cursor:pointer;transition:.1s}
+    .engineCard:hover{transform:translateY(-1px)}.engineCard.on{outline:3px solid rgba(142,108,255,.25);background:rgba(255,255,255,.9)}
+    .engineTop{display:flex;align-items:center;gap:10px}.miniAvatar{width:42px;height:42px;border-radius:15px;display:grid;place-items:center;background:rgba(255,255,255,.72);font-size:25px}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.between{display:flex;justify-content:space-between;gap:10px;align-items:center}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 0}.tab{padding:10px 12px;border-radius:999px;background:rgba(255,255,255,.6);font-weight:1000;color:rgba(18,24,39,.68)}.tab.on{background:white;color:#5b3fd6}
+    .view{display:none}.view.on{display:block}
+    .field{margin:12px 0}.label{display:flex;justify-content:space-between;font-size:13px;font-weight:1000;margin-bottom:6px}.input,.select,textarea{width:100%;padding:12px;border-radius:16px;border:1px solid rgba(18,24,39,.14);background:white}textarea{min-height:74px;resize:vertical}
+    input[type=range]{width:100%}.toggleGroup{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.toggleGroup button{padding:10px;border-radius:14px;background:rgba(255,255,255,.7);border:1px solid var(--line);font-weight:900}.toggleGroup button.on{background:linear-gradient(135deg,var(--purple),var(--blue));color:white}
+    .avatarGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.avatarBtn{padding:10px;border-radius:18px;background:rgba(255,255,255,.72);border:1px solid var(--line);font-size:28px}.avatarBtn.on{outline:3px solid rgba(142,108,255,.25);background:white}
+    .table{display:grid;gap:8px}.statRow{display:grid;grid-template-columns:1.2fr .7fr .7fr .7fr .7fr;gap:8px;align-items:center;padding:10px;border-radius:16px;background:rgba(255,255,255,.68);font-size:12px}.statRow b{font-size:13px}
+    @media(max-width:720px){.statRow{grid-template-columns:1fr 1fr}.statRow.header{display:none}}
+    .savedItem,.noteItem{padding:12px;border-radius:18px;background:rgba(255,255,255,.72);border:1px solid var(--line);margin-bottom:9px}
+    .bar{height:8px;border-radius:999px;background:rgba(18,24,39,.08);overflow:hidden;margin-top:7px}.bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--pink),var(--orange),var(--purple))}
+    .compareSet{padding:10px;border-radius:18px;background:rgba(255,255,255,.72);border:1px solid var(--line)}
+
+    .engineActions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+    .engineActions button{padding:8px 9px;border-radius:12px;background:rgba(255,255,255,.86);border:1px solid var(--line);font-size:12px;font-weight:1000;box-shadow:none}
+    .engineActions button.danger{color:#c0184a;border-color:rgba(192,24,74,.22)}
+
+
+    .engineActions button.confirmDelete{background:#c0184a!important;color:white!important;border-color:#c0184a!important}
+    .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:120;padding:12px 15px;border-radius:999px;background:rgba(18,24,39,.9);color:white;font-size:13px;font-weight:900;box-shadow:0 18px 50px rgba(18,24,39,.25);display:none}
+    .toast.on{display:block}
+
+
+    .coreBox{margin-top:12px;padding:13px;border-radius:20px;background:linear-gradient(135deg,rgba(255,255,255,.78),rgba(255,255,255,.54));border:1px solid var(--line)}
+    .coreBox b{display:block;margin-bottom:5px}
+
+  </style>
+</head>
+<body>
+<div class="wrap"><section class="shell">
+  <div class="top">
+    <div class="brand"><div class="logo">🍀</div><div><h1>Luck to you v2.0</h1><p class="sub">Selfmaker Company · Build your Engine · Save your Research</p></div></div>
+    <div class="chips"><div class="chip" id="chipData">기록: -</div><div class="chip" id="chipEngines">엔진: 0</div><div class="chip" id="chipSaved">저장: 0</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" data-tab="home">홈</button>
+    <button class="tab" data-tab="edit">엔진 편집</button>
+    <button class="tab" data-tab="compare">비교</button>
+    <button class="tab" data-tab="records">기록</button>
+    <button class="tab" data-tab="lab">실험실</button>
+  </div>
+
+  <div class="view on" id="home">
+    <div class="grid">
+      <div class="card"><div class="hd"><div><div class="k">오늘의 엔진</div><div class="s">기록 갱신 후 선택한 엔진 설정으로 조합을 생성합니다.</div></div><span class="tag" id="engineDna">DNA</span></div>
+        <div class="bd main">
+          <div class="heroEngine">
+            <div class="avatar" id="heroAvatar">🦊</div>
+            <div><div class="engineName" id="heroName">운빨대장</div><div class="stars" id="heroStars">★★★★★</div><div style="margin-top:7px"><span class="lv" id="heroLv">Lv.1</span></div><div class="meta" id="heroMeta">생성 기록 없음</div></div>
+          </div>
+          <div class="btns"><button class="big" id="btnGenerate">✨ 번호 생성</button></div>
+          <div class="numbers" id="genBalls"></div>
+          <div class="meta" id="genMeta">엔진을 선택하고 생성해보세요.</div>
+          <div class="btns"><button class="pill primary" id="btnSaveSet" disabled>💾 생성 결과 저장</button><button class="pill" id="btnClone">복제</button><button class="pill" id="btnFavorite">즐겨찾기</button><button class="pill" id="btnExport">백업</button></div>
+          <div class="note">저장한 조합은 이후 과거 기록 데이터와 비교해 엔진별 결과 기록으로 정리할 수 있습니다. 이 도구는 기록·실험용입니다.</div>
+        </div>
+      </div>
+      <div class="card"><div class="hd"><div><div class="k">엔진 라이브러리</div><div class="s">캐릭터와 이름으로 엔진을 관리합니다.</div></div><button class="pill primary" id="btnNew">＋ 새 엔진</button></div><div class="bd"><div class="engineList" id="engineList"></div></div></div>
+    </div>
+  </div>
+
+  <div class="view" id="edit">
+    <div class="grid">
+      <div class="card"><div class="hd"><div><div class="k">엔진 프로필</div><div class="s">익살스러운 이름과 캐릭터를 지정합니다.</div></div><button class="pill primary" id="btnSaveEngine">저장</button></div>
+        <div class="bd">
+          <div class="field"><div class="label"><span>캐릭터</span><span id="avatarLabel">🦊</span></div><div class="avatarGrid" id="avatarGrid"></div></div>
+          <div class="field"><div class="label"><span>엔진 이름</span></div><input class="input" id="engineNameInput" /></div>
+          <div class="field"><div class="label"><span>연구 메모</span></div><textarea id="engineMemo" placeholder="이 엔진을 만든 이유나 변경 내용을 기록하세요."></textarea></div>
+          <div class="note">저장하면 변경 노트가 자동으로 남습니다. 복제 버튼을 사용하면 새 버전으로 나눠서 비교할 수 있습니다.</div>
+        </div>
+      </div>
+      <div class="card"><div class="hd"><div><div class="k">엔진 설정</div><div class="s">슬라이더와 토글로 생성 성향을 조정합니다.</div></div><span class="tag" id="editDna">DNA</span></div>
+        <div class="bd">
+          <div class="field"><div class="label"><span>최근 기준 구간</span><span id="recentWindowLabel">20회</span></div><select class="select" id="recentWindow"><option value="10">최근 10회</option><option value="20">최근 20회</option><option value="30">최근 30회</option><option value="50">최근 50회</option><option value="100">최근 100회</option></select></div>
+          <div class="field"><div class="label"><span>최근 구간 보정</span><span id="recentLabel">30</span></div><input type="range" id="wRecent" min="0" max="100" /></div>
+          <div class="field"><div class="label"><span>역대 전체 반영</span><span id="allLabel">20</span></div><input type="range" id="wAll" min="0" max="100" /></div>
+          <div class="field"><div class="label"><span>Hot 표시 성향</span><span id="hotLabel">35</span></div><input type="range" id="wHot" min="0" max="100" /></div>
+          <div class="field"><div class="label"><span>Cold 표시 성향</span><span id="coldLabel">30</span></div><input type="range" id="wCold" min="0" max="100" /></div>
+          <div class="field"><div class="label"><span>홀짝 균형</span><span id="oddLabel">50</span></div><input type="range" id="wOdd" min="0" max="100" /></div>
+          <div class="field"><div class="label"><span>구간 균형</span><span id="zoneLabel">50</span></div><input type="range" id="wZone" min="0" max="100" /></div>
+          <div class="field"><div class="label"><span>연속수</span></div><div class="toggleGroup" id="conGroup"><button data-v="allow">허용</button><button data-v="soft">감소</button><button data-v="block">제거</button></div></div>
+          <div class="field"><div class="label"><span>직전 기록 겹침</span></div><div class="toggleGroup" id="lastGroup"><button data-v="allow">허용</button><button data-v="soft">감소</button><button data-v="block">제거</button></div></div>
+          <div class="field"><div class="label"><span>생성 세트 수</span></div><select class="select" id="batch"><option value="1">1세트</option><option value="2">2세트</option><option value="3">3세트</option><option value="5">5세트</option><option value="10">10세트</option></select></div>
+          <div class="coreBox">
+            <b>Engine Core v2.0</b>
+            <div class="s">기본 데이터는 역대 전체 기록을 기준으로 합니다. 기록이 갱신되면 내부 기준 데이터가 자동 재계산됩니다.</div>
+            <div class="s" style="margin-top:6px">Engine Core 편집과 번호 DNA 분석은 v3.0 예정입니다.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="view" id="compare">
+    <div class="card"><div class="hd"><div><div class="k">엔진 비교</div><div class="s">체크한 엔진을 동시에 돌리고 설정 차이를 봅니다.</div></div><button class="pill primary" id="btnCompareRun">비교 생성</button></div>
+      <div class="bd"><div class="engineList" id="comparePicker"></div><div class="table" id="compareResult" style="margin-top:12px"></div></div>
+    </div>
+  </div>
+
+  <div class="view" id="records">
+    <div class="grid">
+      <div class="card"><div class="hd"><div><div class="k">저장 조합</div><div class="s">생성 후 저장한 결과입니다.</div></div><button class="pill danger" id="btnClearSaved">전체삭제</button></div><div class="bd"><div id="savedList"></div></div></div>
+      <div class="card"><div class="hd"><div><div class="k">엔진 성적표</div><div class="s">저장 조합과 최근 기록을 비교합니다.</div></div><button class="pill" id="btnRefresh">기록 불러오기</button></div><div class="bd"><div class="note" id="dataNote">기록 데이터를 불러오는 중입니다.</div><div class="table" id="engineStats" style="margin-top:12px"></div></div></div>
+    </div>
+    <div class="card" style="margin-top:14px"><div class="hd"><div><div class="k">연구노트</div><div class="s">엔진 설정 저장/복제/실험 기록이 자동으로 남습니다.</div></div></div><div class="bd"><div id="notesList"></div></div></div>
+  </div>
+
+  <div class="view" id="lab">
+    <div class="grid">
+      <div class="card"><div class="hd"><div><div class="k">실험실</div><div class="s">현재 엔진에서 파생 엔진을 자동 생성합니다.</div></div><button class="pill primary" id="btnMakeVariants">파생 엔진 만들기</button></div>
+        <div class="bd">
+          <div class="note">현재 엔진을 기준으로 ① 최근 기록 강화 ② Cold 강화 ③ 균형 강화 ④ 연속수 제거 버전을 자동 생성합니다. 기존 엔진은 유지됩니다.</div>
+          <div id="variantPreview" style="margin-top:12px"></div>
+        </div>
+      </div>
+      <div class="card"><div class="hd"><div><div class="k">백업 / 복원</div><div class="s">브라우저 저장 데이터를 텍스트로 보관합니다.</div></div></div>
+        <div class="bd">
+          <button class="pill" id="btnBackup">백업 텍스트 생성</button>
+          <button class="pill" id="btnRestore">복원</button>
+          <textarea id="backupText" placeholder="백업 텍스트가 여기에 표시됩니다. 복원할 때는 여기에 붙여넣고 복원 버튼을 누르세요." style="margin-top:12px"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</section></div>
+
+<div class="toast" id="toast">완료</div>
+<script>
+(()=> {
+  const K = { ENGINES:'lty_v20_engines', CURRENT:'lty_v20_current', SAVED:'lty_v20_saved', DRAWS:'lty_v20_draws', TEMP:'lty_v20_temp', NOTES:'lty_v20_notes' };
+  const avatars = [
+    ['🦊','운빨대장'],['🐻','균형곰'],['🐧','콜드펭귄'],['🐱','냥냥번호'],['🐰','점프토끼'],
+    ['🐹','햄스터럭'],['🐸','개굴도사'],['🐯','호랑이픽'],['🐶','멍멍믹스'],['🐲','드래곤엔진']
+  ];
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+  const load = (k,f) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : f; } catch { return f; } };
+  const save = (k,v) => localStorage.setItem(k, JSON.stringify(v));
+  const uid = () => 'e_' + Math.random().toString(16).slice(2) + Date.now();
+  const now = () => new Date().toISOString();
+  const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+  let editingId = null;
+
+  function defaultEngine(i=0){
+    const a = avatars[i % avatars.length];
+    return {
+      id: uid(), avatar:a[0], name:a[1], favorite:i<3, version:1, parentId:null, createdAt:now(), updatedAt:now(),
+      memo:'초기 엔진',
+      settings:{ recentWindow:20, recent:30, all:70, hot:35, cold:30, odd:50, zone:50, consecutive:'soft', lastOverlap:'soft', batch:3, engineCore:{version:'2.0', reserved:{dna:null,pairScore:null,hotScore:null,coldScore:null,zoneScore:null,gapScore:null,densityScore:null}} },
+      stats:{ generated:0, saved:0 }
+    };
+  }
+  function note(type, engine, text, before=null, after=null){
+    const notes=load(K.NOTES,[]);
+    notes.push({id:'n_'+Date.now()+Math.random().toString(16).slice(2), createdAt:now(), type, engineId:engine.id, engineName:engine.name, avatar:engine.avatar, text, before, after});
+    save(K.NOTES, notes);
+  }
+  function ensureEngines(){
+    let engines = load(K.ENGINES, null);
+    if (!engines || !engines.length){
+      engines = [defaultEngine(0), defaultEngine(1), defaultEngine(2)];
+      save(K.ENGINES, engines);
+      save(K.CURRENT, engines[0].id);
+      engines.forEach(e=>note('create', e, '초기 엔진 생성'));
+    }
+    engines.forEach(e=>{
+      e.settings = e.settings || {};
+      if(e.settings.recentWindow == null) e.settings.recentWindow = 20;
+      if(e.settings.all == null) e.settings.all = 70;
+      if(e.settings.recent == null) e.settings.recent = 30;
+      if(!e.settings.engineCore) e.settings.engineCore = {version:'2.0', reserved:{dna:null,pairScore:null,hotScore:null,coldScore:null,zoneScore:null,gapScore:null,densityScore:null}};
+    });
+    save(K.ENGINES, engines);
+    return engines;
+  }
+  function currentEngine(){
+    const engines = ensureEngines();
+    const id = load(K.CURRENT, engines[0].id);
+    return engines.find(e=>e.id===id) || engines[0];
+  }
+  function setCurrent(id){ save(K.CURRENT, id); renderAll(); }
+
+  function dna(e){
+    const s=e.settings;
+    if(s.recent>=65 && s.hot>=50) return '🔥 공격형';
+    if(s.cold>=55) return '❄ 잠수탐색';
+    if(s.odd>=65 && s.zone>=65) return '🛡 균형형';
+    if(s.consecutive==='block' && s.lastOverlap==='block') return '🧩 정리형';
+    if(s.recent<=25 && s.all>=45) return '📚 장기기록형';
+    return '🧬 혼합형';
+  }
+  function level(e){ return Math.max(1, Math.min(9, Math.floor((e.stats?.generated||0)/50)+1)); }
+  function stars(e){
+    const lv=level(e), n=Math.min(5,Math.ceil(lv/2));
+    return '★★★★★'.slice(0,n) + '☆☆☆☆☆'.slice(0,5-n);
+  }
+  function settingsSummary(e){
+    const s=e.settings;
+    return `역대 ${s.all} · 최근${s.recentWindow||20} ${s.recent} · Hot ${s.hot} · Cold ${s.cold} · 연속 ${labelMode(s.consecutive)}`;
+  }
+  function labelMode(v){ return v==='allow'?'허용':v==='block'?'제거':'감소'; }
+
+  function normalize(raw){
+    if(raw && raw.draws) raw = raw.draws;
+    if(!Array.isArray(raw)) return [];
+    return raw.map(x=>({drwNo:+x.drwNo,date:(x.date||'').slice(0,10),nums:Array.isArray(x.nums)?x.nums.map(Number):[],bonus:+(x.bonus??0)}))
+      .filter(x=>Number.isFinite(x.drwNo)&&x.nums.length===6).sort((a,b)=>a.drwNo-b.drwNo);
+  }
+  async function refreshDraws(){
+    try{
+      const res = await fetch('./data/lotto_draws.json?v='+Date.now(), {cache:'no-store'});
+      if(!res.ok) throw new Error('fetch failed');
+      const draws = normalize(await res.json());
+      if(!draws.length) throw new Error('empty');
+      save(K.DRAWS, draws);
+      return draws;
+    }catch{
+      return load(K.DRAWS, []);
+    }
+  }
+
+  function freq(draws, n){
+    const arr = draws.slice(Math.max(0, draws.length-n));
+    const f = Array(46).fill(0);
+    arr.forEach(d=>d.nums.forEach(x=>f[x]++));
+    return f;
+  }
+  function allFreq(draws){ return freq(draws, draws.length); }
+  function lastSeen(draws){
+    const ls = Array(46).fill(null);
+    draws.forEach(d=>d.nums.forEach(n=>ls[n]=d.drwNo));
+    return ls;
+  }
+  function weightedPick(weights, used){
+    let total=0;
+    for(let i=1;i<=45;i++) if(!used.has(i)) total += Math.max(.001, weights[i]);
+    let r = Math.random()*total;
+    for(let i=1;i<=45;i++){
+      if(used.has(i)) continue;
+      r -= Math.max(.001, weights[i]);
+      if(r<=0) return i;
+    }
+    for(let i=1;i<=45;i++) if(!used.has(i)) return i;
+    return 1;
+  }
+  function scoreCombo(nums, engine, draws){
+    const s=engine.settings, arr=nums.slice().sort((a,b)=>a-b);
+    let score=1;
+    let cons=0; for(let i=0;i<arr.length-1;i++) if(arr[i+1]===arr[i]+1) cons++;
+    if(s.consecutive==='block' && cons>0) score -= .7*cons;
+    if(s.consecutive==='soft') score -= .25*cons;
+    const odd = arr.filter(n=>n%2).length;
+    score -= (s.odd/100)*Math.abs(odd-3)*.08;
+    const z1=arr.filter(n=>n<=15).length,z2=arr.filter(n=>n>15&&n<=30).length,z3=arr.filter(n=>n>30).length;
+    score -= (s.zone/100)*(Math.abs(z1-2)+Math.abs(z2-2)+Math.abs(z3-2))*.06;
+    const last = draws.at(-1);
+    if(last){
+      const overlap = arr.filter(n=>last.nums.includes(n)).length;
+      if(s.lastOverlap==='block' && overlap>0) score -= .5*overlap;
+      if(s.lastOverlap==='soft') score -= .18*overlap;
+    }
+    return score;
+  }
+  function generateWithEngine(engine, draws){
+    const s=engine.settings, recentF=freq(draws,s.recentWindow||20), allF=allFreq(draws), ls=lastSeen(draws), lastNo=draws.at(-1)?.drwNo||0;
+    const maxR=Math.max(...recentF.slice(1),1), maxA=Math.max(...allF.slice(1),1);
+    const weights=Array(46).fill(1);
+    for(let n=1;n<=45;n++){
+      const recent = recentF[n]/maxR;
+      const all = allF[n]/maxA;
+      const overdue = ls[n]==null ? .5 : clamp((lastNo-ls[n])/40,0,1);
+      weights[n] = 1 + (s.recent/100)*recent + (s.all/100)*all + (s.hot/100)*recent + (s.cold/100)*overdue;
+    }
+    let best=null, bestScore=-999;
+    const tries = 18 + Math.round((s.odd+s.zone)/20);
+    for(let t=0;t<tries;t++){
+      const used=new Set();
+      while(used.size<6) used.add(weightedPick(weights, used));
+      const nums=[...used].sort((a,b)=>a-b);
+      const sc=scoreCombo(nums, engine, draws);
+      if(sc>bestScore){ best=nums; bestScore=sc; }
+    }
+    return best;
+  }
+
+  function renderBalls(where, nums, small=false){
+    where.innerHTML='';
+    nums.forEach((n,i)=>{
+      const d=document.createElement('div');
+      d.className='ball'+(small?' sm':'');
+      d.style.animationDelay=(i*35)+'ms';
+      d.innerHTML='<span>'+n+'</span>';
+      where.appendChild(d);
+    });
+  }
+
+
+  function renderHome(){
+    const engines=ensureEngines(), cur=currentEngine(), draws=load(K.DRAWS,[]), saved=load(K.SAVED,[]);
+    $('#chipEngines').textContent='엔진: '+engines.length;
+    $('#chipSaved').textContent='저장: '+saved.length;
+    const last=draws.at(-1); $('#chipData').textContent=last?`기록: ${last.drwNo}회`:'기록: -';
+    $('#heroAvatar').textContent=cur.avatar; $('#heroName').textContent=cur.name; $('#heroStars').textContent=stars(cur); $('#heroLv').textContent='Lv.'+level(cur); $('#engineDna').textContent=dna(cur);
+    $('#heroMeta').textContent=`생성 ${cur.stats?.generated||0}회 · 저장 ${cur.stats?.saved||0}회 · ${dna(cur)}`;
+    const temp=load(K.TEMP,null);
+    if(temp && temp.engineId===cur.id){ renderBalls($('#genBalls'), temp.nums); $('#genMeta').textContent=`${cur.avatar} ${cur.name} · ${new Date(temp.createdAt).toLocaleString()} · ${temp.note||'생성 결과'}` + (temp.basis?` · ${temp.basis.drwNo}회 기준 · 최근${temp.basis.recentWindow} 보정`:''); $('#btnSaveSet').disabled=false; }
+    else { $('#genBalls').innerHTML=''; $('#genMeta').textContent='엔진을 선택하고 생성해보세요.'; $('#btnSaveSet').disabled=true; }
+    renderEngineList();
+  }
+  function renderEngineList(){
+    const engines=ensureEngines(), cur=currentEngine();
+    const list = $('#engineList');
+    list.innerHTML='';
+    engines.slice().sort((a,b)=>(b.favorite?1:0)-(a.favorite?1:0)).forEach(e=>{
+      const card=document.createElement('div');
+      card.className='engineCard'+(e.id===cur.id?' on':'');
+      card.innerHTML=`<div class="engineTop">
+          <div class="miniAvatar">${e.avatar}</div>
+          <div><b>${e.name}</b><div class="meta">Lv.${level(e)} · ${dna(e)}</div></div>
+        </div>
+        <div class="row" style="margin-top:9px"><span class="tag">${e.favorite?'★ 즐겨찾기':'일반'}</span><span class="tag">생성 ${e.stats?.generated||0}</span></div>
+        <div class="engineActions">
+          <button type="button" data-action="select">선택</button>
+          <button type="button" data-action="edit">편집</button>
+          <button type="button" data-action="clone">복제</button>
+          <button type="button" data-action="fav">★</button>
+          <button type="button" class="danger ${pendingDeleteId===e.id?'confirmDelete':''}" data-action="delete">${pendingDeleteId===e.id?'정말 삭제':'삭제'}</button>
+        </div>`;
+      card.querySelector('[data-action="select"]').addEventListener('click',()=>setCurrent(e.id));
+      card.querySelector('[data-action="edit"]').addEventListener('click',()=>{setCurrent(e.id);goTab('edit');});
+      card.querySelector('[data-action="clone"]').addEventListener('click',()=>{setCurrent(e.id);cloneEngine();});
+      card.querySelector('[data-action="fav"]').addEventListener('click',()=>{setCurrent(e.id);favoriteEngine();});
+      card.querySelector('[data-action="delete"]').addEventListener('click',()=>deleteEngineSimple(e.id));
+      card.addEventListener('click',(ev)=>{ if(!ev.target.closest('button')) setCurrent(e.id); });
+      list.appendChild(card);
+    });
+  }
+
+  let pendingDeleteId = null;
+  let pendingDeleteTimer = null;
+
+  function showToast(msg){
+    const t = $('#toast');
+    if(!t) return;
+    t.textContent = msg;
+    t.classList.add('on');
+    setTimeout(()=>t.classList.remove('on'), 1400);
+  }
+
+  function deleteEngineSimple(id){
+    const engines=ensureEngines();
+    if(engines.length<=1){
+      showToast('엔진은 최소 1개 이상 필요합니다.');
+      return;
+    }
+    const target=engines.find(e=>e.id===id);
+    if(!target){
+      showToast('삭제할 엔진을 찾지 못했습니다.');
+      return;
+    }
+
+    if(pendingDeleteId !== id){
+      pendingDeleteId = id;
+      clearTimeout(pendingDeleteTimer);
+      pendingDeleteTimer = setTimeout(()=>{
+        pendingDeleteId = null;
+        renderEngineList();
+      }, 3500);
+      renderEngineList();
+      showToast('한 번 더 누르면 삭제됩니다.');
+      return;
+    }
+
+    const next=engines.filter(e=>e.id!==id);
+    save(K.ENGINES,next);
+    if(load(K.CURRENT,null)===id){
+      save(K.CURRENT,next[0].id);
+    }
+    pendingDeleteId = null;
+    clearTimeout(pendingDeleteTimer);
+    showToast(target.name+' 삭제 완료');
+    renderAll();
+  }
+
+  function fillEdit(){
+    const e=currentEngine(), s=e.settings;
+    editingId=e.id;
+    $('#engineNameInput').value=e.name; $('#engineMemo').value=e.memo||''; $('#avatarLabel').textContent=e.avatar;
+    $('#avatarGrid').innerHTML='';
+    avatars.forEach(a=>{
+      const b=document.createElement('button'); b.className='avatarBtn'+(a[0]===e.avatar?' on':''); b.textContent=a[0]; b.onclick=()=>{$('#avatarLabel').textContent=a[0]; $$('.avatarBtn').forEach(x=>x.classList.remove('on')); b.classList.add('on');};
+      $('#avatarGrid').appendChild(b);
+    });
+    ['Recent','All','Hot','Cold','Odd','Zone'].forEach(k=>{
+      const key=k.toLowerCase();
+      $( '#w'+k ).value=s[key]; $('#'+key+'Label').textContent=s[key];
+    });
+    $('#recentWindow').value=s.recentWindow || 20; $('#recentWindowLabel').textContent=($('#recentWindow').value || 20)+'회';
+    $('#batch').value=s.batch;
+    setGroup('conGroup', s.consecutive);
+    setGroup('lastGroup', s.lastOverlap);
+    $('#editDna').textContent=dna(e);
+  }
+  function setGroup(id, val){ $$('#'+id+' button').forEach(b=>b.classList.toggle('on', b.dataset.v===val)); }
+  function getGroup(id){ return $('#'+id+' button.on')?.dataset.v || 'soft'; }
+  function bindEditor(){
+    ['Recent','All','Hot','Cold','Odd','Zone'].forEach(k=>{
+      const key=k.toLowerCase();
+      $('#w'+k).addEventListener('input',()=>$('#'+key+'Label').textContent=$('#w'+k).value);
+    });
+    ['conGroup','lastGroup'].forEach(id=>$$('#'+id+' button').forEach(b=>b.onclick=()=>setGroup(id,b.dataset.v)));
+    $('#recentWindow').addEventListener('change',()=>$('#recentWindowLabel').textContent=$('#recentWindow').value+'회');
+  }
+  function snapshot(e){ return JSON.stringify({avatar:e.avatar,name:e.name,memo:e.memo,settings:e.settings}); }
+  function saveEngineFromEditor(){
+    const engines=ensureEngines(), idx=engines.findIndex(e=>e.id===editingId);
+    if(idx<0) return;
+    const before = JSON.parse(JSON.stringify(engines[idx]));
+    const e=engines[idx];
+    e.avatar=$('#avatarLabel').textContent;
+    e.name=$('#engineNameInput').value.trim() || e.name;
+    e.memo=$('#engineMemo').value.trim();
+    e.updatedAt=now();
+    e.settings={
+      recentWindow:+$('#recentWindow').value, recent:+$('#wRecent').value, all:+$('#wAll').value, hot:+$('#wHot').value, cold:+$('#wCold').value,
+      odd:+$('#wOdd').value, zone:+$('#wZone').value, consecutive:getGroup('conGroup'), lastOverlap:getGroup('lastGroup'), batch:+$('#batch').value, engineCore:e.settings.engineCore || {version:'2.0', reserved:{dna:null,pairScore:null,hotScore:null,coldScore:null,zoneScore:null,gapScore:null,densityScore:null}}
+    };
+    engines[idx]=e; save(K.ENGINES, engines);
+    if(snapshot(before)!==snapshot(e)) note('edit', e, '엔진 설정 저장', before.settings, e.settings);
+    renderAll(); goTab('home');
+  }
+  function newEngine(){
+    const engines=ensureEngines();
+    const e=defaultEngine(engines.length);
+    engines.push(e); save(K.ENGINES, engines); save(K.CURRENT, e.id); note('create', e, '새 엔진 생성'); renderAll(); goTab('edit');
+  }
+  function cloneEngine(){
+    const engines=ensureEngines(), cur=currentEngine();
+    const copy=JSON.parse(JSON.stringify(cur));
+    copy.id=uid(); copy.name=cur.name+' v'+(cur.version+1); copy.version=(cur.version||1)+1; copy.parentId=cur.id; copy.favorite=false; copy.createdAt=now(); copy.updatedAt=now(); copy.stats={generated:0,saved:0}; copy.memo='복제 엔진';
+    engines.push(copy); save(K.ENGINES, engines); save(K.CURRENT, copy.id); note('clone', copy, cur.name+'에서 복제', cur.settings, copy.settings); renderAll(); goTab('edit');
+  }
+  function favoriteEngine(){
+    const engines=ensureEngines(), cur=currentEngine();
+    const e=engines.find(x=>x.id===cur.id); e.favorite=!e.favorite; save(K.ENGINES, engines); renderAll();
+  }
+  async function generateCurrent(){
+    await refreshDraws();
+    const engines=ensureEngines(), cur=currentEngine(), draws=load(K.DRAWS,[]);
+    const nums=generateWithEngine(cur, draws);
+    const last=draws.at(-1); const temp={engineId:cur.id, engineName:cur.name, avatar:cur.avatar, nums, createdAt:now(), note:dna(cur), settings:cur.settings, basis:last?{drwNo:last.drwNo,date:last.date,recentWindow:cur.settings.recentWindow||20}:null};
+    save(K.TEMP,temp);
+    const e=engines.find(x=>x.id===cur.id); e.stats=e.stats||{}; e.stats.generated=(e.stats.generated||0)+1; save(K.ENGINES, engines);
+    renderHome();
+  }
+  function saveTemp(){
+    const temp=load(K.TEMP,null); if(!temp) return;
+    const saved=load(K.SAVED,[]), engines=ensureEngines(), e=engines.find(x=>x.id===temp.engineId);
+    saved.push({...temp,id:'s_'+Date.now()+Math.random().toString(16).slice(2), savedAt:now()});
+    if(e){ e.stats=e.stats||{}; e.stats.saved=(e.stats.saved||0)+1; save(K.ENGINES, engines); }
+    save(K.SAVED,saved); renderAll();
+  }
+  function matchCount(nums, draw){ return nums.filter(n=>draw.nums.includes(n)).length; }
+  function renderSaved(){
+    const saved=load(K.SAVED,[]), draws=load(K.DRAWS,[]), last=draws.at(-1);
+    $('#savedList').innerHTML='';
+    if(!saved.length){ $('#savedList').innerHTML='<div class="note">저장된 조합이 없습니다.</div>'; return; }
+    saved.slice().sort((a,b)=>b.savedAt.localeCompare(a.savedAt)).forEach(x=>{
+      const item=document.createElement('div'); item.className='savedItem';
+      const hit=last?matchCount(x.nums,last):null;
+      item.innerHTML=`<div class="between"><div><b>${x.avatar} ${x.engineName}</b><div class="meta">${new Date(x.savedAt).toLocaleString()} · ${x.note||''}</div></div><span class="tag">${hit===null?'기록 없음':last.drwNo+'회 '+hit+'개'}</span></div><div class="balls"></div>`;
+      renderBalls(item.querySelector('.balls'), x.nums, true);
+      $('#savedList').appendChild(item);
+    });
+  }
+  function renderStats(){
+    const engines=ensureEngines(), saved=load(K.SAVED,[]), draws=load(K.DRAWS,[]), last=draws.at(-1);
+    $('#dataNote').textContent=last?`현재 ${draws.length}건, 최근 ${last.drwNo}회(${last.date}) 기록을 참고 중입니다.`:'기록 데이터가 없습니다. data/lotto_draws.json을 불러오세요.';
+    $('#engineStats').innerHTML='<div class="statRow header"><b>엔진</b><b>저장</b><b>최근 평균</b><b>최근 최고</b><b>Lv</b></div>';
+    engines.forEach(e=>{
+      const rows=saved.filter(s=>s.engineId===e.id);
+      let recent='-', best='-';
+      if(last && rows.length){ const hits=rows.map(r=>matchCount(r.nums,last)); recent=(hits.reduce((a,b)=>a+b,0)/hits.length).toFixed(2); best=Math.max(...hits); }
+      const r=document.createElement('div'); r.className='statRow';
+      r.innerHTML=`<span><b>${e.avatar} ${e.name}</b><br><span class="meta">${dna(e)}</span></span><span>${rows.length}</span><span>${recent}</span><span>${best}</span><span>Lv.${level(e)}</span>`;
+      $('#engineStats').appendChild(r);
+    });
+  }
+  function renderNotes(){
+    const notes=load(K.NOTES,[]);
+    $('#notesList').innerHTML='';
+    if(!notes.length){ $('#notesList').innerHTML='<div class="note">연구노트가 없습니다.</div>'; return; }
+    notes.slice().sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).slice(0,50).forEach(n=>{
+      const item=document.createElement('div'); item.className='noteItem';
+      item.innerHTML=`<div class="between"><div><b>${n.avatar} ${n.engineName}</b><div class="meta">${new Date(n.createdAt).toLocaleString()} · ${n.type}</div></div><span class="tag">${n.text}</span></div>`;
+      $('#notesList').appendChild(item);
+    });
+  }
+  function renderComparePicker(){
+    const engines=ensureEngines();
+    $('#comparePicker').innerHTML='';
+    engines.forEach((e,i)=>{
+      const c=document.createElement('label'); c.className='engineCard';
+      c.innerHTML=`<div class="engineTop"><input type="checkbox" ${i<3?'checked':''} data-id="${e.id}"><div class="miniAvatar">${e.avatar}</div><div><b>${e.name}</b><div class="meta">${dna(e)}</div></div></div><div class="meta" style="margin-top:8px">${settingsSummary(e)}</div>`;
+      $('#comparePicker').appendChild(c);
+    });
+  }
+  function compareRun(){
+    const ids=$$('#comparePicker input:checked').map(x=>x.dataset.id), engines=ensureEngines().filter(e=>ids.includes(e.id)), draws=load(K.DRAWS,[]);
+    $('#compareResult').innerHTML='';
+    engines.forEach(e=>{
+      const wrap=document.createElement('div'); wrap.className='compareSet';
+      wrap.innerHTML=`<div class="between"><div><b>${e.avatar} ${e.name}</b><div class="meta">${dna(e)} · ${settingsSummary(e)}</div></div><span class="tag">비교 생성</span></div><div class="balls" style="margin-top:10px"></div>`;
+      renderBalls(wrap.querySelector('.balls'), generateWithEngine(e,draws), true);
+      $('#compareResult').appendChild(wrap);
+    });
+  }
+  function makeVariants(){
+    const engines=ensureEngines(), cur=currentEngine(), variants=[];
+    const specs=[
+      ['최근강화', s=>{s.recent=clamp(s.recent+15,0,100);}],
+      ['Cold강화', s=>{s.cold=clamp(s.cold+25,0,100);}],
+      ['균형강화', s=>{s.odd=clamp(s.odd+25,0,100);s.zone=clamp(s.zone+25,0,100);}],
+      ['연속제거', s=>{s.consecutive='block';}]
+    ];
+    specs.forEach(([label,fn],i)=>{
+      const copy=JSON.parse(JSON.stringify(cur));
+      copy.id=uid(); copy.name=cur.name+' '+label; copy.version=(cur.version||1)+1; copy.parentId=cur.id; copy.favorite=false; copy.createdAt=now(); copy.updatedAt=now(); copy.stats={generated:0,saved:0}; copy.memo='실험실 파생 엔진: '+label;
+      fn(copy.settings); engines.push(copy); variants.push(copy); note('variant', copy, cur.name+'에서 '+label+' 파생', cur.settings, copy.settings);
+    });
+    save(K.ENGINES, engines);
+    $('#variantPreview').innerHTML=variants.map(v=>`<div class="savedItem"><b>${v.avatar} ${v.name}</b><div class="meta">${dna(v)} · ${settingsSummary(v)}</div></div>`).join('');
+    renderAll();
+  }
+  function backup(){
+    const data={engines:load(K.ENGINES,[]),saved:load(K.SAVED,[]),notes:load(K.NOTES,[])};
+    $('#backupText').value=JSON.stringify(data);
+  }
+  function restore(){
+    try{
+      const data=JSON.parse($('#backupText').value);
+      if(data.engines) save(K.ENGINES,data.engines);
+      if(data.saved) save(K.SAVED,data.saved);
+      if(data.notes) save(K.NOTES,data.notes);
+      renderAll(); alert('복원 완료');
+    }catch{ alert('복원 실패: 백업 텍스트를 확인하세요.'); }
+  }
+
+  function goTab(id){
+    $$('.tab').forEach(t=>t.classList.toggle('on',t.dataset.tab===id));
+    $$('.view').forEach(v=>v.classList.toggle('on',v.id===id));
+    if(id==='edit') fillEdit();
+    if(id==='compare') renderComparePicker();
+    if(id==='records'){ renderSaved(); renderStats(); renderNotes(); }
+  }
+  function renderAll(){ renderHome(); renderSaved(); renderStats(); renderNotes(); renderComparePicker(); }
+  function bind(){
+    $$('.tab').forEach(t=>t.onclick=()=>goTab(t.dataset.tab));
+    $('#btnNew').onclick=newEngine; $('#btnClone').onclick=cloneEngine; $('#btnFavorite').onclick=favoriteEngine; $('#btnGenerate').onclick=generateCurrent; $('#btnSaveSet').onclick=saveTemp;
+    $('#btnSaveEngine').onclick=saveEngineFromEditor; $('#btnCompareRun').onclick=compareRun; $('#btnMakeVariants').onclick=makeVariants;
+    $('#btnRefresh').onclick=async()=>{ await refreshDraws(); renderAll(); };
+    let clearSavedReady=false;
+    $('#btnClearSaved').onclick=()=>{
+      if(!clearSavedReady){
+        clearSavedReady=true;
+        $('#btnClearSaved').textContent='정말 전체삭제';
+        showToast('한 번 더 누르면 저장 조합이 삭제됩니다.');
+        setTimeout(()=>{clearSavedReady=false; $('#btnClearSaved').textContent='전체삭제';},3500);
+        return;
+      }
+      localStorage.removeItem(K.SAVED);
+      clearSavedReady=false;
+      $('#btnClearSaved').textContent='전체삭제';
+      showToast('저장 조합 삭제 완료');
+      renderAll();
+    };
+    $('#btnBackup').onclick=backup; $('#btnRestore').onclick=restore; $('#btnExport').onclick=()=>{goTab('lab'); backup();};
+    bindEditor();
+  }
+
+
+  function cleanOldLtuStorageOnce(){
+    const markerKey = 'lty_v20_started';
+    if(localStorage.getItem(markerKey)==='1') return;
+    const keepPrefix = 'lty_v20';
+    const keys = [];
+    for(let i=0;i<localStorage.length;i++){
+      const k = localStorage.key(i);
+      if(k && (k.toLowerCase().startsWith('ltu') || k.toLowerCase().startsWith('lty')) && !k.startsWith(keepPrefix)){
+        keys.push(k);
+      }
+    }
+    keys.forEach(k=>localStorage.removeItem(k));
+    localStorage.setItem(markerKey,'1');
+  }
+
+  (async function init(){
+    cleanOldLtuStorageOnce(); ensureEngines(); bind(); await refreshDraws(); renderAll();
+  })();
+})();
+</script>
+</body>
+</html>
